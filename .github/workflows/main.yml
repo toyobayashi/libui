@@ -1,0 +1,46 @@
+name: Build
+
+on: workflow_dispatch 
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - run: pip install meson
+
+    - name: Cache build
+      uses: actions/cache@v2
+      with:
+        path: ./build
+        key: ${{ runner.os }}-build
+        restore-keys: |
+          ${{ runner.os }}-build
+          ${{ runner.os }}-
+
+    - name: Windows build
+      if: ${{ matrix.os == 'windows-latest' }}
+      shell: cmd
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        meson setup build --buildtype=release --default-library=static --backend=vs -Db_vscrt=static_from_buildtype
+        meson compile -C build
+        ren build\meson-out\libui.a libui-win32-x64.lib
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: libui
+        path: |
+          build/meson-out/libui-win32-*.lib
+        if-no-files-found: ignore # 'warn' or 'ignore' are also available, defaults to `warn`
+        retention-days: 1

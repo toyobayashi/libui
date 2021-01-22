@@ -77,6 +77,7 @@ if libui_MSVC
 	libui_project_compile_args += [
 		'/wd4100',
 		'/bigobj',
+		'/source-charset:utf-8',
 	]
 	if libui_is_debug
 		libui_project_compile_args += ['/RTC1', '/RTCs', '/RTCu']
@@ -86,6 +87,7 @@ if libui_MSVC
 		'/LARGEADDRESSAWARE',
 		'/INCREMENTAL:NO',
 		'/MANIFEST:NO',
+		# '/SUBSYSTEM:WINDOWS',
 	]
 
 	# TODO autogenerate a .def file?
@@ -172,5 +174,5 @@ libui_binary_deps = []
 if libui_mode == 'static'
 	libui_binary_deps = libui_deps
 endif
-subdir('test')
-subdir('examples')
+# subdir('test')
+# subdir('examples')
